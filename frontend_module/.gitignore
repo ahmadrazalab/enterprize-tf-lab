@@ -2,7 +2,7 @@
 *.tfstate
 *.tfstate.*
 infra-resources.sh
-
+terraform.tfvars
 
 # Terraform plan files
 *.tfplan
