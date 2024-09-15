@@ -1,6 +1,5 @@
 infra-resources.sh
-temp_modules
-.vscode
+BIN
 
 # Terraform state files
 *.tfstate

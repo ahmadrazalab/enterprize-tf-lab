@@ -2,7 +2,7 @@
 # RDS mysql database 
 ##############################################################################################################################################################
 resource "aws_db_instance" "default" {
-  identifier             = "app-db-nest" # Set your DB identifier here
+  identifier             = "app-db" # Set your DB identifier here
   allocated_storage      = 20
   max_allocated_storage  = 100
   engine                 = "mysql"
@@ -18,7 +18,7 @@ resource "aws_db_instance" "default" {
   db_subnet_group_name   = aws_db_subnet_group.main.name
 
   tags = {
-    Name = "app-db-"
+    Name = "app-db"
   }
 }
 
@@ -32,6 +32,7 @@ resource "aws_db_subnet_group" "main" {
 }
 
 
+#########################################################################################
 # Read Replica of the primary MySQL RDS instance in the same region
 resource "aws_db_instance" "read_replica" {
   identifier             = "app-db-replica"
@@ -45,4 +46,8 @@ resource "aws_db_instance" "read_replica" {
     Name = "app-db-read-replica"
   }
 }
+
+
+
+
 

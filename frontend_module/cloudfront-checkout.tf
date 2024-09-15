@@ -1,5 +1,5 @@
-# cloudfront.tf
-resource "aws_cloudfront_distribution" "website_distribution" {
+# cloudfront1.tf
+resource "aws_cloudfront_distribution" "checkout_distribution" {
   origin {
     domain_name = aws_s3_bucket.s3-static-site-paytring.bucket_regional_domain_name
     origin_id   = var.cf_origin_id
@@ -7,16 +7,16 @@ resource "aws_cloudfront_distribution" "website_distribution" {
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
     }
-    origin_path = "/dist"  # Set this to the folder containing your static files
+    origin_path = "/checkout" # Set this to the folder containing your static files
   }
 
   enabled             = true
   is_ipv6_enabled     = true
-  comment             = "CloudFront Distribution for S3 Static Website"
-  default_root_object = "dist/index.html" # change according to application configuration 
+  comment             = "CloudFront Distribution for checkout"
+  default_root_object = "checkout/index.html" # change according to application configuration 
 
 
-  aliases = ["dash.kubecloud.in.net"]
+  aliases = ["checkout.kubecloud.in.net"]
 
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
@@ -51,7 +51,7 @@ resource "aws_cloudfront_distribution" "website_distribution" {
 
 
   tags = {
-    Name = "CloudFront Distribution"
+    Name = "CloudFront Distribution for checkout "
   }
 }
 
