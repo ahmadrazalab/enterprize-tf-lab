@@ -1,4 +1,11 @@
-# providers.tf
-provider "aws" {
-  region = "ap-south-1"
+terraform {
+  required_version = "~> 1.9.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.31"
+    }
+  }
 }
+
+# Provider configuration is inherited from the root module
