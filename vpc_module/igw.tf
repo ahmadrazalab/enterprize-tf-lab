@@ -3,9 +3,9 @@
 
 
 # Create Internet Gateway
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.custom_vpc.id
-  tags = {
-    Name = "custom-vpc-igw"
-  }
+resource "aws_internet_gateway" "prod_igw" {
+  vpc_id = aws_vpc.prod_vpc.id
+  tags = merge({
+    Name = "prod-vpc-igw"
+  }, var.vpc_tags)
 }

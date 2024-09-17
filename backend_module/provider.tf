@@ -1,12 +1,13 @@
-terraform {
-  cloud {
+# Using Terraform Cloud to manage terraform running using workspaces 
+terraform { 
+  cloud { 
+    
+    organization = "devops-aws-tf" 
 
-    organization = "devops-aws-tf"
-
-    workspaces {
-      name = "deploy-init-enterprize-tf-lab"
-    }
-  }
+    workspaces { 
+      name = "backend-module" 
+    } 
+  } 
 }
 
 

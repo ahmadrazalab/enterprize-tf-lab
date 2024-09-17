@@ -1,7 +1,7 @@
 
 # SG for Ec2 only which allow traffic from only alb
 resource "aws_security_group" "ec2_sg" {
-  name        = "ec2_sg"
+  name        = "${var.environment}-${var.company_name}-ec2-sg"
   description = "Security group for EC2 instances"
   vpc_id      = var.vpc_id
 
@@ -45,7 +45,7 @@ resource "aws_security_group" "ec2_sg" {
 
 # SG for RDS which allow traffic from ec2 sg only 
 resource "aws_security_group" "rds_sg" {
-  name        = "rds_sg"
+  name        = "${var.environment}-${var.company_name}-rds-sg"
   description = "Security group for RDS instance"
   vpc_id      = var.vpc_id
 
@@ -69,8 +69,8 @@ resource "aws_security_group" "rds_sg" {
 
 # SG for ALB which allows traffic from only Cloudflare IPs
 resource "aws_security_group" "alb_sg" {
-  name        = "alb_sg"
-  description = "Security group for ALB as cloudflare proxy IPS "
+  name        = "${var.environment}-${var.company_name}-alb-sg"
+  description = "Security group for ALB as cloudflare proxy IPS"
   vpc_id      = var.vpc_id
 
   # Allow HTTP traffic (port 80) from Cloudflare IPv4 ranges

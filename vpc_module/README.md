@@ -1,28 +1,38 @@
-### Step-by-Step Guide to Create a Custom VPC
+# VPC Module
 
-#### 1. **Choose a CIDR Block for Your VPC**
+This Terraform module creates a Virtual Private Cloud (VPC) in AWS with public and private subnets across multiple Availability Zones.
 
-A VPC (Virtual Private Cloud) CIDR block is a range of IP addresses. When creating a VPC, you need to decide on the size of the IP address range.
+## Resources Created
 
-- **CIDR Block for VPC**: For this example, we'll use `10.0.0.0/16`. This provides a range of IP addresses from `10.0.0.0` to `10.0.255.255`, giving us 65,536 IP addresses.
+- VPC
+- Internet Gateway
+- NAT Gateway
+- Public and Private Subnets
+- Route Tables (Public and Private)
 
-#### 2. **Divide the VPC CIDR Block into Subnets**
+## Usage
 
-You need to divide the VPC into smaller subnets. Each subnet will be associated with an AZ. Since we want 3 public and 3 private subnets, we can allocate the CIDR ranges accordingly.
+```hcl
+module "vpc" {
+  source = "path/to/vpc/module"
 
-##### **Public Subnets**
+  vpc_cidr             = "10.0.0.0/16"
+  public_subnet_cidrs  = ["10.0.0.0/20", "10.0.16.0/20", "10.0.32.0/20"]
+  private_subnet_cidrs = ["10.0.48.0/20", "10.0.64.0/20", "10.0.80.0/20"]
+  availability_zones   = ["us-west-2a", "us-west-2b", "us-west-2c"]
+}
+```
 
-- **Subnet 1 (AZ1 - Public)**: `10.0.0.0/20` (4096 IPs)
-- **Subnet 2 (AZ2 - Public)**: `10.0.16.0/20` (4096 IPs)
-- **Subnet 3 (AZ3 - Public)**: `10.0.32.0/20` (4096 IPs)
+## Inputs
 
-##### **Private Subnets**
-
-- **Subnet 4 (AZ1 - Private)**: `10.0.48.0/20` (4096 IPs)
-- **Subnet 5 (AZ2 - Private)**: `10.0.64.0/20` (4096 IPs)
-- **Subnet 6 (AZ3 - Private)**: `10.0.80.0/20` (4096 IPs)
-
-The `/20` CIDR block gives each subnet 4096 IP addresses. This is more than enough for most applications.
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| vpc_cidr | CIDR block for the VPC | `string` | `"10.0.0.0/16"` | no |
+| public_subnet_cidrs | CIDR blocks for public subnets | `list(string)` | `["10.0.0.0/20", "10.0.16.0/20", "10.0.32.0/20"]` | no |
+| private_subnet_cidrs | CIDR blocks for private subnets | `list(string)` | `["10.0.48.0/20", "10.0.64.0/20", "10.0.80.0/20"]` | no |
+| availability_zones | List of AZ names or IDs in the region | `list(string)` | n/a | yes |
+| enable_dns_hostnames | Enable DNS hostnames in the VPC | `bool` | `true` | no |
+| enable_dns_support | Enable DNS support in the VPC | `bool` | `true` | no |
 
 #### 3. **Architecture Design**
 

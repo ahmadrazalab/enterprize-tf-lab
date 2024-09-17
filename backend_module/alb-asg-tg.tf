@@ -1,9 +1,9 @@
 
 # Create ALB
 ##############################################################################################################################################################
-resource "aws_lb" "app_lb" {
-  name               = "app-lb"
-  internal           = false
+resource "aws_lb" "prod_app_lb" {
+  name               = "${var.environment}-${replace(var.company_name, ".", "-")}-app-lb"
+  internal           = var.lb_internal
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
   subnets            = var.subnet_ids
@@ -14,9 +14,9 @@ resource "aws_lb" "app_lb" {
 
 
 # TG1-Primary for ALB
-resource "aws_lb_target_group" "tg1" {
-  name     = "app-tg1"
-  port     = 80
+resource "aws_lb_target_group" "primary_tg" {
+  name     = "${var.environment}-${replace(var.company_name, ".", "-")}-primary-tg"
+  port     = var.app_port
   protocol = "HTTP"
   vpc_id   = var.vpc_id
 
@@ -35,9 +35,9 @@ resource "aws_lb_target_group" "tg1" {
 
 
 # TG2-Secondary for ALB
-resource "aws_lb_target_group" "tg2" {
-  name     = "app-tg2"
-  port     = 80
+resource "aws_lb_target_group" "secondary_tg" {
+  name     = "${var.environment}-${replace(var.company_name, ".", "-")}-secondary-tg"
+  port     = var.app_port
   protocol = "HTTP"
   vpc_id   = var.vpc_id
 
@@ -55,7 +55,7 @@ resource "aws_lb_target_group" "tg2" {
 
 # HTTP-80 > listner1 redirect from http to https as default listner
 resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.app_lb.arn
+  load_balancer_arn = aws_lb.prod_app_lb.arn
   port              = "80"
   protocol          = "HTTP"
 
@@ -124,7 +124,7 @@ resource "aws_lb_listener" "http" {
 
 # HTTPS-443 > listner2 redirect traffic to tg1 and tg2 50/50
 resource "aws_lb_listener" "https" {
-  load_balancer_arn = aws_lb.app_lb.arn
+  load_balancer_arn = aws_lb.prod_app_lb.arn
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
@@ -135,12 +135,12 @@ resource "aws_lb_listener" "https" {
 
     forward {
       target_group {
-        arn    = aws_lb_target_group.tg1.arn
+        arn    = aws_lb_target_group.primary_tg.arn
         weight = 1
       }
 
       target_group {
-        arn    = aws_lb_target_group.tg2.arn
+        arn    = aws_lb_target_group.secondary_tg.arn
         weight = 0
       }
     }
@@ -155,7 +155,7 @@ resource "aws_lb_listener_rule" "https_header_rule" {
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.tg2.arn # Target group to forward traffic to
+    target_group_arn = aws_lb_target_group.primary_tg.arn # Target group to forward traffic to
   }
 
   condition {
@@ -205,14 +205,14 @@ locals {
 
 # Create launch template for application instances ami 
 ##############################################################################################################################################################
-resource "aws_launch_template" "lt" {
-  name          = "app-nest-l-template"
-  image_id      = var.ami_id # change this to the ami created from the ec2 user data scripts
+resource "aws_launch_template" "app_launch_template" {
+  name          = "${var.environment}-${replace(var.company_name, ".", "-")}-app-launch-template"
+  image_id      = var.ami_id
   instance_type = var.instance_type
   # Include user_data in the launch template
   user_data              = base64encode(local.user_data)
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
-  key_name               = "api-key-aws"
+  key_name               = "terraform-key"
 
 }
 
@@ -220,15 +220,15 @@ resource "aws_launch_template" "lt" {
 
 # Create Auto Scaling Group for tg1
 ##############################################################################################################################################################
-resource "aws_autoscaling_group" "asg" {
-  name                = "pt-b-app-asg"
-  desired_capacity    = 1
-  max_size            = 2
-  min_size            = 1
+resource "aws_autoscaling_group" "app_asg" {
+  name                = "${var.environment}-${replace(var.company_name, ".", "-")}-app-asg"
+  desired_capacity    = var.asg_desired_capacity
+  max_size            = var.asg_max_size
+  min_size            = var.asg_min_size
   vpc_zone_identifier = var.subnet_ids
-  target_group_arns   = [aws_lb_target_group.tg1.arn]
+  target_group_arns   = [aws_lb_target_group.primary_tg.arn]
   launch_template {
-    id      = aws_launch_template.lt.id
+    id      = aws_launch_template.app_launch_template.id
     version = "$Latest"
   }
 

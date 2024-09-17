@@ -1,5 +1,5 @@
 output "db_instance_endpoint" {
-  value       = aws_db_instance.default.endpoint
+  value       = aws_db_instance.primary_db.endpoint
   description = "The connection endpoint of the primary RDS instance."
 }
 
