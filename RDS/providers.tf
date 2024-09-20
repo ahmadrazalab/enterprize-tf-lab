@@ -5,7 +5,7 @@ terraform {
     organization = "devops-aws-tf" 
 
     workspaces { 
-      name = "backend-module" 
+      name = "temp_modules-work1" 
     } 
   } 
 }
